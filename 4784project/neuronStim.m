@@ -20,7 +20,7 @@ Ek = -12; %mV
 Ena = 115; %mV
 El = 10.6; %mV
 Vrest = -70; %mV
-deltax=.01; 
+deltax=.001; 
 
 %general loop vars
 Vm = 0;%Vrest;
@@ -57,7 +57,7 @@ conna = []; %gk array
 for it=deltax:deltax:100 %ms
     if it<.5 %apply 5uA/cm^2 for 0.5ms
         if mode~=0 
-            I=5;%E-2; %V/s
+            I=50;%E-2; %V/s
         end
     else 
         if mode==1
