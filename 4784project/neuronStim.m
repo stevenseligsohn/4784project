@@ -1,4 +1,4 @@
-function [  ] = neuronStepStim( mode )
+function [  ] = neuronStim( mode )
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 %input: mode 0 = no current input to system
@@ -20,10 +20,10 @@ Ek = -12; %mV
 Ena = 115; %mV
 El = 10.6; %mV
 Vrest = -70; %mV
-deltax=.001; 
+deltax=.01; 
 
 %general loop vars
-Vm = Vrest;
+Vm = 0;%Vrest;
 dVmdt = 0;
 Cm = 1; %uF/cm^2
 vmx = [];
@@ -57,7 +57,7 @@ conna = []; %gk array
 for it=deltax:deltax:100 %ms
     if it<.5 %apply 5uA/cm^2 for 0.5ms
         if mode~=0 
-            I=5E-2; %V/s
+            I=5;%E-2; %V/s
         end
     else 
         if mode==1
@@ -69,10 +69,8 @@ for it=deltax:deltax:100 %ms
     betan = 0.125*exp(-Vm/80);
     dndt = (alphan*(1-n))-(betan*n);
     dVkdt = Ik/Cm;
-    Ik = (n^4)*gk*(Vm-Ek); 
+    Ik = (n^4)*gk*(Vm-Ek);
     n = n + deltax*dndt; %Euler's
-    %Ek = Ek + deltax*dVkdt;
-    %poty(round(it/deltax)) = Ek;
     conk(round(it/deltax)) = (n^4)*gk; %potassium conductance
 
     %sodium
@@ -83,36 +81,25 @@ for it=deltax:deltax:100 %ms
     dmdt = alpham*(1-m)-betam*m;
     dhdt = alphah*(1-h)-betah*h;
     dVnadt = Ina/Cm;
-    Ina = (m^3)*gna*h*(Vm-Ena); 
+    Ina = (m^3)*gna*h*(Vm-Ena);
     m = m + deltax*dmdt; %Euler's
     h = h + deltax*dhdt; 
-    %Ena = Ena + deltax*dVnadt;
-    %sody(round(it/deltax)) = Ena;
     conna(round(it/deltax)) = (m^3)*gna*h; %sodium conductance
     
     %general
     Il = gl*(Vm-El); 
     Iion = I-Ik-Ina-Il;
-    Vm = Vm + deltax*dVmdt;
     dVmdt = Iion/Cm;
+    Vm = Vm + deltax*dVmdt;
     vmx(round(it/deltax)) = it;
-    kder(round(it/deltax)) = dVkdt;
-    nader(round(it/deltax)) = dVnadt;
-    vmder(round(it/deltax)) = dVmdt;
-    Icurr(round(it/deltax)) = Iion;
-    potcurr(round(it/deltax)) = Ik;
-    sodcurr(round(it/deltax)) = Ina;
-    calcurr(round(it/deltax)) = Il;
     vmy(round(it/deltax)) = Vm;
 end
 
 subplot(2, 1, 1);
-%plot(vmx, vmy, 'k', vmx, kder, vmx, nader, vmx, vmder);
-plot(vmx, vmy, 'k');
+plot(vmx, vmy-70, 'k');
 title('Membrane Potential');
 xlabel('time (ms)');
 ylabel('V (mV)');
-%legend('Vm', 'dVkdt', 'dVnadt', 'dVmdt');
 
 subplot(2, 1, 2);
 plot(vmx, conk, 'r', vmx, conna, 'b');
@@ -120,13 +107,6 @@ title('Channel Conductances');
 xlabel('time (ms)');
 ylabel('conductance (S/cm^2)');
 legend('g_K', 'g_N_a');
-
-%subplot(3, 1, 3);
-%plot(vmx, Icurr, vmx, potcurr, vmx, sodcurr, vmx, calcurr);
-%title('Ion Current');
-%xlabel('time (ms)');
-%ylabel('I (mA)');
-%legend('Iion', 'Ik', 'Ina', 'Il');
 
 end
 
